@@ -1,0 +1,223 @@
+/* ============ Экран «Путь» ============ */
+.next-hero {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, var(--violet) 0%, #8A5CF6 55%, var(--sky) 130%);
+  color: #fff; border: none;
+  margin-bottom: 26px;
+}
+.next-hero .eyebrow { color: rgba(255,255,255,0.75); }
+.next-hero h2 { font-family: var(--font-display); font-size: 21px; margin: 6px 0 4px; }
+.next-hero p { font-size: 14.5px; opacity: 0.92; margin-bottom: 16px; }
+.next-hero .btn {
+  background: #fff; color: var(--violet-deep);
+  border-bottom-color: rgba(0,0,0,0.22);
+}
+.next-hero::after {
+  content: ''; position: absolute; right: -34px; top: -34px;
+  width: 130px; height: 130px; border-radius: 50%;
+  background: rgba(255,255,255,0.14);
+}
+.hero-done { background: linear-gradient(135deg, var(--mint) 0%, var(--sky) 130%); }
+
+/* Модуль на карте */
+.module-head {
+  display: flex; align-items: center; gap: 14px;
+  margin: 8px 0 4px;
+}
+.module-head .m-icon {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 52px; height: 52px; border-radius: 18px;
+  color: #fff;
+}
+.module-head .m-icon svg { width: 26px; height: 26px; stroke: currentColor; fill: none; }
+.module-head h3 { font-family: var(--font-display); font-size: 16px; }
+.module-head small { color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
+.module-head .m-count { margin-left: auto; flex-shrink: 0; }
+
+.mc-violet { background: var(--violet); }
+.mc-mint { background: var(--mint); }
+.mc-sky { background: var(--sky); }
+.mc-amber { background: var(--amber); }
+.mc-coral { background: var(--coral); }
+
+/* ============ Тропа уроков (сигнатурный элемент) ============ */
+.path { display: flex; flex-direction: column; align-items: center; padding: 44px 0 10px; }
+.path-seg { width: 6px; height: 34px; border-radius: 3px; background:
+  repeating-linear-gradient(to bottom, var(--border) 0 6px, transparent 6px 13px);
+}
+.path-seg.lit { background:
+  repeating-linear-gradient(to bottom, var(--violet) 0 6px, transparent 6px 13px);
+}
+.node-row { display: flex; align-items: center; gap: 14px; }
+.node {
+  position: relative;
+  display: grid; place-items: center;
+  width: 72px; height: 72px; border-radius: 50%;
+  border: none; cursor: pointer; padding: 0;
+  background: var(--surface); color: var(--muted);
+  box-shadow: inset 0 0 0 3px var(--border), 0 4px 0 var(--border);
+  transition: transform 0.1s ease;
+}
+.node svg { width: 30px; height: 30px; stroke: currentColor; fill: none; }
+.node:active { transform: translateY(2px); }
+.node.done {
+  background: var(--mint); color: #fff;
+  box-shadow: inset 0 0 0 3px var(--mint-deep), 0 4px 0 var(--mint-deep);
+}
+.node.current {
+  background: var(--violet); color: #fff;
+  box-shadow: inset 0 0 0 3px var(--violet-deep), 0 4px 0 var(--violet-deep);
+}
+.node.current::before {
+  content: ''; position: absolute; inset: -9px;
+  border-radius: 50%; border: 3px solid var(--violet);
+  opacity: 0.5; animation: halo 1.6s ease-out infinite;
+}
+@keyframes halo {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.12); opacity: 0; }
+  100% { opacity: 0; }
+}
+.node.locked { cursor: not-allowed; opacity: 0.75; }
+.node-label {
+  max-width: 170px; font-size: 13px; font-weight: 600; line-height: 1.3;
+  color: var(--muted); text-align: left;
+}
+.node-row.odd { transform: translateX(34px); }
+.node-row.even { transform: translateX(-34px); }
+.node-row .start-bubble {
+  position: absolute; top: -38px; left: 50%; transform: translateX(-50%);
+  background: var(--violet); color: #fff;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.06em;
+  padding: 5px 12px; border-radius: 10px; white-space: nowrap;
+  animation: bob 1.4s ease-in-out infinite;
+}
+.node-row .start-bubble::after {
+  content: ''; position: absolute; left: 50%; bottom: -5px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px; height: 10px; background: inherit;
+}
+@keyframes bob { 50% { transform: translateX(-50%) translateY(-4px); } }
+.node-wrap { position: relative; }
+
+/* Roadmap-модули (ещё без контента) */
+.roadmap-note {
+  text-align: center; margin: 30px 0 14px;
+}
+.module-future {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; margin-bottom: 10px;
+  opacity: 0.72;
+}
+.module-future .m-icon {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--surface-2); color: var(--muted);
+}
+.module-future .m-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; }
+.module-future b { font-size: 14.5px; display: block; }
+.module-future small { color: var(--muted); font-size: 12.5px; }
+.module-future .lock { margin-left: auto; }
+.module-future .lock svg { width: 18px; height: 18px; color: var(--muted); }
+
+/* ============ Экран урока ============ */
+.lesson-top {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+.lesson-top .bar { flex: 1; }
+.icon-btn {
+  display: grid; place-items: center;
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 2px solid var(--border); background: var(--surface);
+  color: var(--muted); cursor: pointer;
+}
+.icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
+
+.lesson-card { margin-bottom: 18px; }
+.lesson-card .eyebrow { margin-bottom: 8px; }
+.lesson-card h2 { font-size: 21px; margin-bottom: 12px; }
+.lesson-card p { font-size: 16px; margin-bottom: 10px; }
+.lesson-card ul { padding-left: 22px; font-size: 15.5px; }
+.lesson-card li { margin-bottom: 6px; }
+.lesson-card .codeblock { margin-top: 12px; }
+.lesson-actions { display: flex; gap: 10px; margin-top: 20px; }
+.lesson-actions .btn { flex: 1; }
+
+/* Экран завершения */
+.finish { text-align: center; padding: 34px 18px; }
+.finish .finish-icon {
+  display: grid; place-items: center; margin: 0 auto 16px;
+  width: 92px; height: 92px; border-radius: 50%;
+  background: var(--amber-soft);
+  animation: pop-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.finish .finish-icon svg { width: 46px; height: 46px; color: var(--amber-deep); }
+@keyframes pop-in { from { transform: scale(0.3); opacity: 0; } to { transform: none; opacity: 1; } }
+.finish h2 { font-family: var(--font-display); font-size: 24px; margin-bottom: 8px; }
+.finish .sub { color: var(--muted); margin-bottom: 22px; }
+.reward-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
+.reward {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: var(--r-md);
+  border: 2px solid var(--border); background: var(--surface);
+  font-weight: 800; font-size: 16px;
+}
+.reward svg { width: 22px; height: 22px; }
+.reward.xp svg { color: var(--violet); }
+.reward.streak svg { color: var(--amber-deep); }
+.reward.perfect { border-color: var(--amber); }
+.reward.perfect svg { color: var(--amber-deep); }
+
+/* Практика */
+.practice-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--amber-deep); font-weight: 800; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+}
+.practice-badge svg { width: 17px; height: 17px; stroke: currentColor; fill: none; }
+
+/* ============ Профиль ============ */
+.profile-section { margin-bottom: 22px; }
+.profile-section h3 { font-size: 15px; margin-bottom: 10px; }
+.level-card { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.level-badge {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 64px; height: 64px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--violet), var(--sky));
+  color: #fff; font-family: var(--font-display); font-size: 24px; font-weight: 700;
+}
+.level-info { flex: 1; }
+.level-info b { display: block; margin-bottom: 6px; }
+.level-info small { color: var(--muted); display: block; margin-top: 6px; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 13px 0; border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row .lbl { font-weight: 600; font-size: 15px; }
+.settings-row .sub { font-size: 12.5px; color: var(--muted); }
+.seg { display: flex; gap: 4px; background: var(--surface-2); border-radius: 12px; padding: 4px; }
+.seg button {
+  border: none; background: transparent; cursor: pointer;
+  padding: 6px 12px; border-radius: 9px; font-weight: 700; font-size: 13px;
+  color: var(--muted);
+}
+.seg button.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+/* ============ Десктоп ============ */
+@media (min-width: 720px) {
+  .brand-name { font-size: 16px; }
+  .tabbar {
+    position: sticky; bottom: auto; top: 57px;
+    border-top: none; border-bottom: 1px solid var(--border);
+    justify-content: center; gap: 18px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .tabbar a { flex-direction: row; gap: 8px; font-size: 14px; max-width: none; flex: 0 0 auto; padding: 8px 16px; }
+  .tabbar a svg { width: 19px; height: 19px; }
+  main { padding-top: 30px; }
+  .node-row.odd { transform: translateX(52px); }
+  .node-row.even { transform: translateX(-52px); }
+}

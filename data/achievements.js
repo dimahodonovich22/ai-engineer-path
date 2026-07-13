@@ -1,0 +1,105 @@
+// Достижения. check(ctx) -> boolean; ctx собирается в app.js после каждого события.
+export const ACHIEVEMENTS = [
+  {
+    id: 'first-lesson', icon: 'play', color: 'mc-violet',
+    title: 'Первый шаг',
+    desc: 'Пройди свой первый урок',
+    check: (c) => c.lessonsDone >= 1,
+  },
+  {
+    id: 'five-lessons', icon: 'zap', color: 'mc-sky',
+    title: 'Разогрев',
+    desc: 'Пройди 5 уроков',
+    check: (c) => c.lessonsDone >= 5,
+  },
+  {
+    id: 'ten-lessons', icon: 'trending-up', color: 'mc-sky',
+    title: 'Десятка',
+    desc: 'Пройди 10 уроков',
+    check: (c) => c.lessonsDone >= 10,
+  },
+  {
+    id: 'twenty-lessons', icon: 'chart-column', color: 'mc-sky',
+    title: 'Серьёзный настрой',
+    desc: 'Пройди 20 уроков',
+    check: (c) => c.lessonsDone >= 20,
+  },
+  {
+    id: 'module-m0', icon: 'rocket', color: 'mc-violet',
+    title: 'Стартовал',
+    desc: 'Заверши модуль «Старт»',
+    check: (c) => c.modulesDone.includes('m0'),
+  },
+  {
+    id: 'module-m1', icon: 'code', color: 'mc-mint',
+    title: 'Первый код',
+    desc: 'Заверши модуль «Python: первые шаги»',
+    check: (c) => c.modulesDone.includes('m1'),
+  },
+  {
+    id: 'module-m2', icon: 'repeat', color: 'mc-mint',
+    title: 'Логика прокачана',
+    desc: 'Заверши модуль «Python: логика»',
+    check: (c) => c.modulesDone.includes('m2'),
+  },
+  {
+    id: 'module-m3', icon: 'brain-circuit', color: 'mc-amber',
+    title: 'Понимаю ИИ',
+    desc: 'Заверши модуль «Как работает ИИ»',
+    check: (c) => c.modulesDone.includes('m3'),
+  },
+  {
+    id: 'streak-3', icon: 'flame', color: 'mc-amber',
+    title: 'Искра',
+    desc: 'Стрик 3 дня подряд',
+    check: (c) => c.streak >= 3,
+  },
+  {
+    id: 'streak-7', icon: 'flame', color: 'mc-amber',
+    title: 'Неделя силы',
+    desc: 'Стрик 7 дней подряд',
+    check: (c) => c.streak >= 7,
+  },
+  {
+    id: 'streak-14', icon: 'flame', color: 'mc-coral',
+    title: 'Две недели',
+    desc: 'Стрик 14 дней подряд',
+    check: (c) => c.streak >= 14,
+  },
+  {
+    id: 'streak-30', icon: 'flame', color: 'mc-coral',
+    title: 'Месяц-машина',
+    desc: 'Стрик 30 дней подряд',
+    check: (c) => c.streak >= 30,
+  },
+  {
+    id: 'perfect-1', icon: 'star', color: 'mc-amber',
+    title: 'Без единой ошибки',
+    desc: 'Пройди квиз идеально с первой попытки',
+    check: (c) => c.perfect >= 1,
+  },
+  {
+    id: 'perfect-5', icon: 'target', color: 'mc-amber',
+    title: 'Снайпер',
+    desc: '5 идеальных квизов',
+    check: (c) => c.perfect >= 5,
+  },
+  {
+    id: 'practice-1', icon: 'wrench', color: 'mc-mint',
+    title: 'Практик',
+    desc: 'Выполни первое практическое задание',
+    check: (c) => c.practiceDone >= 1,
+  },
+  {
+    id: 'xp-500', icon: 'sparkles', color: 'mc-violet',
+    title: '500 XP',
+    desc: 'Набери 500 очков опыта',
+    check: (c) => c.xp >= 500,
+  },
+  {
+    id: 'xp-1000', icon: 'party-popper', color: 'mc-violet',
+    title: 'Тысячник',
+    desc: 'Набери 1000 очков опыта',
+    check: (c) => c.xp >= 1000,
+  },
+];

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="AI Engineer Path — ежедневный тренажёр для пути в AI-инженерию: короткие уроки, квизы, стрики и достижения.">
+  <title>AI Engineer Path</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236C4CF1' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z'/%3E%3Cpath d='M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#/">
+      <svg class="brand-mark" aria-hidden="true"><use href="#i-brain-circuit"></use></svg>
+      <span class="brand-name">AI Engineer <em>Path</em></span>
+    </a>
+    <div class="topbar-stats" id="topbar-stats"></div>
+  </header>
+
+  <nav class="tabbar" id="tabbar" aria-label="Основная навигация">
+    <a href="#/" data-tab="map"><svg aria-hidden="true"><use href="#i-route"></use></svg><span>Путь</span></a>
+    <a href="#/awards" data-tab="awards"><svg aria-hidden="true"><use href="#i-trophy"></use></svg><span>Награды</span></a>
+    <a href="#/profile" data-tab="profile"><svg aria-hidden="true"><use href="#i-user"></use></svg><span>Профиль</span></a>
+  </nav>
+
+  <main id="app" tabindex="-1"></main>
+
+  <div id="toast-root" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

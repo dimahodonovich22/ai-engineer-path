@@ -1,0 +1,182 @@
+/* ============ Дизайн-токены ============ */
+:root {
+  /* Палитра «нейронный неон» */
+  --violet: #6C4CF1;
+  --violet-deep: #5233CE;
+  --violet-soft: #EFEAFF;
+  --mint: #1FC77C;
+  --mint-deep: #16A365;
+  --mint-soft: #E2F9EE;
+  --amber: #FFAF1F;
+  --amber-deep: #E08E00;
+  --amber-soft: #FFF3DC;
+  --coral: #FF5C7A;
+  --coral-deep: #E13A5B;
+  --coral-soft: #FFE7EC;
+  --sky: #2FA8F5;
+  --sky-deep: #1C86CC;
+  --sky-soft: #E1F2FE;
+
+  --bg: #F6F4FF;
+  --surface: #FFFFFF;
+  --surface-2: #F1EDFE;
+  --ink: #241F3D;
+  --muted: #6D678C;
+  --border: #E5E0F5;
+  --shadow: 0 2px 0 rgba(36, 31, 61, 0.06);
+  --ring: rgba(108, 76, 241, 0.35);
+
+  --font-display: 'Unbounded', 'Rubik', system-ui, sans-serif;
+  --font-body: 'Rubik', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --page-w: 640px;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --violet: #8B70FF;
+  --violet-deep: #6C4CF1;
+  --violet-soft: #2A2350;
+  --mint: #2BDD90;
+  --mint-deep: #1FC77C;
+  --mint-soft: #14332A;
+  --amber: #FFBE47;
+  --amber-deep: #FFAF1F;
+  --amber-soft: #38290E;
+  --coral: #FF7590;
+  --coral-deep: #FF5C7A;
+  --coral-soft: #3B1B25;
+  --sky: #55BCFF;
+  --sky-deep: #2FA8F5;
+  --sky-soft: #10293A;
+
+  --bg: #131022;
+  --surface: #1D1935;
+  --surface-2: #262046;
+  --ink: #F1EEFF;
+  --muted: #9A93BE;
+  --border: #2E2952;
+  --shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  --ring: rgba(139, 112, 255, 0.45);
+
+  color-scheme: dark;
+}
+
+/* ============ Reset ============ */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; max-width: 100%; }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--violet); text-decoration: none; }
+h1, h2, h3, h4 { line-height: 1.25; text-wrap: balance; }
+
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ============ Типографика ============ */
+.display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; }
+.eyebrow {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--muted);
+}
+code, pre { font-family: var(--font-mono); }
+
+/* ============ Каркас страницы ============ */
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 16px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+.brand-mark { width: 26px; height: 26px; color: var(--violet); }
+.brand-name {
+  font-family: var(--font-display); font-weight: 700; font-size: 14px;
+}
+.brand-name em { font-style: normal; color: var(--violet); }
+
+.topbar-stats { display: flex; gap: 8px; }
+.stat-pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 999px;
+  font-weight: 700; font-size: 14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+}
+.stat-pill svg { width: 17px; height: 17px; }
+.stat-pill.streak svg { color: var(--amber-deep); }
+.stat-pill.streak.cold svg { color: var(--muted); }
+.stat-pill.xp svg { color: var(--violet); }
+
+main {
+  max-width: var(--page-w);
+  margin: 0 auto;
+  padding: 20px 16px 96px;
+  outline: none;
+}
+
+/* ============ Нижняя навигация ============ */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  display: flex; justify-content: center; gap: 4px;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.tabbar a {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  flex: 1; max-width: 120px; padding: 6px 4px;
+  border-radius: var(--r-sm);
+  color: var(--muted); font-size: 11px; font-weight: 600;
+}
+.tabbar a svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+.tabbar a.active { color: var(--violet); background: var(--violet-soft); }
+
+/* ============ Тосты ============ */
+#toast-root {
+  position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+  z-index: 60; display: flex; flex-direction: column; gap: 8px;
+  width: min(92vw, 420px); pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: var(--r-md);
+  background: var(--surface); border: 2px solid var(--amber);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+  font-weight: 600; animation: toast-in 0.35s cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+.toast svg { width: 26px; height: 26px; color: var(--amber-deep); flex-shrink: 0; }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ============ Утилиты ============ */
+.hidden { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
