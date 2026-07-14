@@ -36,6 +36,8 @@ export function renderLesson(app, lessonId) {
   });
   const drillNumber = new Map(); // порядковый номер упражнения в потоке
   flow.filter((it) => it.kind === 'drill').forEach((it, n) => drillNumber.set(it.drill, n + 1));
+  const drillCode = {};          // набранный код по индексу упражнения — не теряется при «Назад»
+  const solvedDrills = new Set(); // упражнения, за которые XP уже начислен
 
   const totalSteps = flow.length + lesson.quiz.length;
 
@@ -92,19 +94,28 @@ export function renderLesson(app, lessonId) {
     );
   }
 
-  function showDrill(i, { drill }) {
+  function showDrill(i, { drill, drillIndex }) {
     stage.replaceChildren();
+    step = i;
+    progress();
     const advance = () => showItem(i + 1);
+    const alreadySolved = solvedDrills.has(drillIndex);
     mountCodeExercise(stage, drill, {
       eyebrow: `Практика · упражнение ${drillNumber.get(drill)} из ${drills.length}`,
-      xpLabel: '+5 XP',
+      xpLabel: alreadySolved ? null : '+5 XP',
+      savedCode: drillCode[drillIndex],
+      onSave: (code) => { drillCode[drillIndex] = code; },
       onSolved: () => {
-        store.addXp(5);
-        store.bumpCodeSolved();
-        checkAchievements();
+        if (!solvedDrills.has(drillIndex)) {
+          solvedDrills.add(drillIndex);
+          store.addXp(5);
+          store.bumpCodeSolved();
+          checkAchievements();
+        }
         advance();
       },
       onSkip: advance,
+      onBack: i > 0 ? () => showItem(i - 1) : null,
     });
   }
 

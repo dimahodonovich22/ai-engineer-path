@@ -218,6 +218,12 @@ p code, li code {
 .tok-num { color: #F7A76C; }
 .tok-fn { color: #74C5FF; }
 
+/* На телефоне поле ввода должно быть >= 16px, иначе iOS зумит страницу при тапе.
+   Все три слоя (номера, подсветка, ввод) масштабируем вместе — иначе курсор съедет. */
+@media (max-width: 719px) {
+  .ed-gutter span, .ed-highlight, .ed-input { font-size: 16px; }
+}
+
 /* Консоль вывода */
 .code-console {
   margin-top: 10px; border-radius: var(--r-md);
@@ -251,6 +257,16 @@ p code, li code {
 }
 .hint-btn svg { width: 16px; height: 16px; color: currentColor; }
 .hint-btn:hover { background: var(--amber-soft); }
+
+/* Кнопка «Назад к объяснению» в упражнении */
+.ex-back {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-bottom: 12px; padding: 6px 12px 6px 8px; border-radius: 999px;
+  background: var(--surface-2); border: none; cursor: pointer;
+  color: var(--muted); font-weight: 700; font-size: 13px;
+}
+.ex-back svg { width: 17px; height: 17px; stroke: currentColor; fill: none; }
+.ex-back:hover { color: var(--ink); }
 
 /* Конфетти */
 .confetti {

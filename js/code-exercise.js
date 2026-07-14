@@ -15,9 +15,9 @@ function stripCommentsAndStrings(code) {
 }
 
 // task: { q, starter, expect, solution, hints|hint, explain, tests? }
-// opts: { eyebrow, xpLabel, savedCode, onSave(code), onSolved({ firstTry }), onSkip }
+// opts: { eyebrow, xpLabel, savedCode, onSave(code), onSolved({ firstTry }), onSkip, onBack }
 export function mountCodeExercise(container, task, opts = {}) {
-  const { eyebrow = 'Твой код', xpLabel = null, onSolved, onSkip } = opts;
+  const { eyebrow = 'Твой код', xpLabel = null, onSolved, onSkip, onBack } = opts;
   const hints = Array.isArray(task.hints) ? task.hints : task.hint ? [task.hint] : [];
   preloadPython();
   let fails = 0;
@@ -35,8 +35,17 @@ export function mountCodeExercise(container, task, opts = {}) {
         icon('lightbulb'), el('span', {}, `Подсказка · ${hints.length} ${hints.length === 1 ? 'уровень' : 'уровня'}`))
     : null;
 
+  // Сохраняем набранное при уходе назад, чтобы код не потерялся.
+  const backBtn = onBack
+    ? el('button', {
+        class: 'ex-back',
+        onclick: () => { opts.onSave?.(editor.getValue()); onBack(); },
+      }, icon('chevron-left'), 'Назад к объяснению')
+    : null;
+
   container.append(
     el('div', { class: 'card lesson-card' },
+      backBtn,
       el('div', { class: 'eyebrow' }, eyebrow),
       el('div', { class: 'quiz-q' }, task.q),
       editor.root,
