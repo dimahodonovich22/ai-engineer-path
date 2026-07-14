@@ -95,6 +95,12 @@ export const store = {
     save();
   },
 
+  // Небольшие мгновенные награды (например, +5 XP за упражнение в практике).
+  addXp(n) {
+    state.xp += n;
+    save();
+  },
+
   markPractice(lessonId) {
     if (state.practice[lessonId]) return;
     state.practice[lessonId] = true;

@@ -1,7 +1,6 @@
 // Движок квиза: 5 типов вопросов, мгновенная проверка, повтор ошибок в конце.
 import { el, icon, esc, shuffle } from './ui.js';
-import { createEditor } from './editor.js';
-import { preloadPython, runPython, outputMatches } from './pycode.js';
+import { mountCodeExercise } from './code-exercise.js';
 import { store } from './store.js';
 import { checkAchievements } from './achievements-engine.js';
 
@@ -88,88 +87,20 @@ export function runQuiz(container, questions, { onProgress, onFinish }) {
   // ---- Код-задание: настоящий Python в браузере ----
   function renderCodeTask(item) {
     const { q } = item;
-    preloadPython(); // грузим Python заранее, пока ученик пишет код
-    let fails = 0;
-
-    const editor = createEditor(item.savedCode ?? q.starter ?? '');
-    const consoleBox = el('div', { class: 'code-console muted' },
-      el('span', { class: 'con-label' }, 'консоль'),
-      'Напиши код и нажми «Запустить», чтобы увидеть результат.');
-    const runBtn = el('button', { class: 'btn btn-ghost', onclick: () => run(false) }, icon('play'), 'Запустить');
-    const checkBtn = el('button', { class: 'btn btn-mint', onclick: () => run(true) }, icon('check'), 'Проверить');
-    const hintBox = el('div', { class: 'code-hint hidden' });
-
-    container.append(
-      el('div', { class: 'card lesson-card' },
-        el('div', { class: 'eyebrow' }, 'Твой код'),
-        el('div', { class: 'quiz-q' }, q.q),
-        editor.root,
-        consoleBox,
-        hintBox,
-        el('div', { class: 'code-actions' }, runBtn, checkBtn),
-      ),
-    );
-
-    function setConsole(text, mode = '') {
-      consoleBox.className = `code-console ${mode}`;
-      consoleBox.replaceChildren(el('span', { class: 'con-label' }, 'консоль'), text);
-    }
-
-    async function run(checking) {
-      const code = editor.getValue();
-      item.savedCode = code;
-      runBtn.disabled = checkBtn.disabled = true;
-      setConsole('Выполняю… (первый запуск скачивает Python, до ~15 секунд)', 'muted');
-
-      const res = await runPython(code, q.tests || null);
-      runBtn.disabled = checkBtn.disabled = false;
-
-      if (res.error) {
-        setConsole((res.stdout ? res.stdout + '\n' : '') + res.error, 'err');
-        if (checking) fail('Код упал с ошибкой — прочитай сообщение в консоли, оно подсказывает, где проблема.');
-        return;
-      }
-      setConsole(res.stdout || '(программа ничего не вывела)');
-
-      if (!checking) return;
-      if (outputMatches(res.stdout, q.expect)) {
+    mountCodeExercise(container, q, {
+      eyebrow: 'Твой код',
+      savedCode: item.savedCode,
+      onSave: (code) => { item.savedCode = code; },
+      onSolved: ({ firstTry }) => {
+        if (!firstTry) firstTryWrong.add(q);
         item.savedCode = undefined;
         store.bumpCodeSolved();
         checkAchievements();
-        showFeedback(true, null, q.explain, () => {
-          queue.shift();
-          solved += 1;
-          next();
-        });
-      } else {
-        fail(`Программа вывела не то, что нужно.\nОжидалось:\n${q.expect}`);
-      }
-    }
-
-    function fail(message) {
-      if (fails === 0) firstTryWrong.add(q);
-      fails += 1;
-      if (q.hint && fails >= 1) {
-        hintBox.classList.remove('hidden');
-        hintBox.replaceChildren(icon('lightbulb', 'hint-icon'), el('span', {}, q.hint));
-      }
-      const sheet = el('div', { class: 'feedback bad' },
-        el('div', { class: 'feedback-inner' },
-          el('div', { class: 'feedback-head' }, icon('circle-x'), 'Пока не так'),
-          el('p', { style: 'white-space:pre-wrap' }, message),
-          el('div', { class: 'code-actions', style: 'margin-top:0' },
-            fails >= 3
-              ? el('button', {
-                  class: 'btn btn-ghost',
-                  onclick: () => { editor.setValue(q.solution); sheet.remove(); setConsole('Решение подставлено в редактор — запусти его и разбери, как оно работает.', 'muted'); },
-                }, icon('lightbulb'), 'Показать решение')
-              : null,
-            el('button', { class: 'btn btn-coral', onclick: () => { sheet.remove(); editor.focus(); } }, 'Попробовать ещё'),
-          ),
-        ),
-      );
-      document.body.append(sheet);
-    }
+        queue.shift();
+        solved += 1;
+        next();
+      },
+    });
   }
 }
 

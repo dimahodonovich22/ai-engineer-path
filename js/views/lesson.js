@@ -6,17 +6,20 @@ import { navigate } from '../router.js';
 import { runQuiz } from '../quiz.js';
 import { checkAchievements } from '../achievements-engine.js';
 import { preloadPython } from '../pycode.js';
+import { mountCodeExercise } from '../code-exercise.js';
 
 export function renderLesson(app, lessonId) {
   const found = findLesson(lessonId);
   if (!found) { navigate(''); return; }
   const { module: mod, lesson } = found;
 
-  // Если в уроке есть код-задание — начинаем качать Python, пока читаются карточки.
-  if (lesson.quiz.some((q) => q.type === 'code')) preloadPython();
+  const drills = lesson.drills || [];
+
+  // Если в уроке есть код — начинаем качать Python, пока читаются карточки.
+  if (drills.length || lesson.quiz.some((q) => q.type === 'code')) preloadPython();
 
   app.replaceChildren();
-  const totalSteps = lesson.cards.length + lesson.quiz.length;
+  const totalSteps = lesson.cards.length + drills.length + lesson.quiz.length;
 
   const barFill = el('i', { style: 'width:0%' });
   const top = el('div', { class: 'lesson-top' },
@@ -52,18 +55,41 @@ export function renderLesson(app, lessonId) {
         card.code ? el('pre', { class: 'codeblock' }, card.code) : null,
         el('div', { class: 'lesson-actions' },
           i > 0 ? el('button', { class: 'btn btn-ghost', onclick: () => showCard(i - 1) }, icon('chevron-left'), 'Назад') : null,
-          el('button', { class: 'btn', onclick: () => (i + 1 < lesson.cards.length ? showCard(i + 1) : startQuiz()) },
-            i + 1 < lesson.cards.length ? 'Дальше' : 'К квизу!', icon('arrow-right')),
+          el('button', { class: 'btn', onclick: () => (i + 1 < lesson.cards.length ? showCard(i + 1) : afterCards()) },
+            i + 1 < lesson.cards.length ? 'Дальше' : drills.length ? 'К практике!' : 'К квизу!', icon('arrow-right')),
         ),
       ),
     );
   }
 
-  // ---- Фаза 2: квиз ----
+  function afterCards() {
+    drills.length ? showDrill(0) : startQuiz();
+  }
+
+  // ---- Фаза 2: практика — печатаем код руками ----
+  function showDrill(i) {
+    step = lesson.cards.length + i;
+    progress();
+    stage.replaceChildren();
+    const advance = () => (i + 1 < drills.length ? showDrill(i + 1) : startQuiz());
+    mountCodeExercise(stage, drills[i], {
+      eyebrow: `Практика · упражнение ${i + 1} из ${drills.length}`,
+      xpLabel: '+5 XP',
+      onSolved: () => {
+        store.addXp(5);
+        store.bumpCodeSolved();
+        checkAchievements();
+        advance();
+      },
+      onSkip: advance,
+    });
+  }
+
+  // ---- Фаза 3: квиз ----
   function startQuiz() {
     runQuiz(stage, lesson.quiz, {
       onProgress(solved) {
-        step = lesson.cards.length + solved;
+        step = lesson.cards.length + drills.length + solved;
         progress();
       },
       onFinish({ mistakes }) {
@@ -72,7 +98,7 @@ export function renderLesson(app, lessonId) {
     });
   }
 
-  // ---- Фаза 3: практика (если есть) ----
+  // ---- Фаза 4: задание в реальном мире (если есть) ----
   function showPractice(mistakes) {
     progress(0.9);
     stage.replaceChildren(
@@ -95,7 +121,7 @@ export function renderLesson(app, lessonId) {
     );
   }
 
-  // ---- Фаза 4: награда ----
+  // ---- Фаза 5: награда ----
   function finish(mistakes) {
     const perfect = mistakes === 0;
     const before = store.streak();
