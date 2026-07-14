@@ -242,6 +242,15 @@ p code, li code {
   font-size: 14px; border: 1.5px dashed var(--amber);
 }
 .code-hint .hint-icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; color: var(--amber-deep); }
+.hint-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px; padding: 7px 14px; border-radius: 999px;
+  background: transparent; border: 1.5px dashed var(--amber);
+  color: var(--amber-deep); font-weight: 700; font-size: 13.5px;
+  cursor: pointer;
+}
+.hint-btn svg { width: 16px; height: 16px; color: currentColor; }
+.hint-btn:hover { background: var(--amber-soft); }
 
 /* Конфетти */
 .confetti {

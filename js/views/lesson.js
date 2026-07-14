@@ -19,7 +19,25 @@ export function renderLesson(app, lessonId) {
   if (drills.length || lesson.quiz.some((q) => q.type === 'code')) preloadPython();
 
   app.replaceChildren();
-  const totalSteps = lesson.cards.length + drills.length + lesson.quiz.length;
+
+  // Поток урока: объяснение -> сразу практика по нему -> следующее объяснение…
+  // Упражнение с afterCard: N встаёт сразу после карточки N, остальные — после всех карточек.
+  const flow = [];
+  lesson.cards.forEach((card, i) => {
+    flow.push({ kind: 'card', card, cardIndex: i });
+    drills.forEach((drill, d) => {
+      if (drill.afterCard === i) flow.push({ kind: 'drill', drill, drillIndex: d });
+    });
+  });
+  drills.forEach((drill, d) => {
+    if (!Number.isInteger(drill.afterCard) || drill.afterCard >= lesson.cards.length) {
+      flow.push({ kind: 'drill', drill, drillIndex: d });
+    }
+  });
+  const drillNumber = new Map(); // порядковый номер упражнения в потоке
+  flow.filter((it) => it.kind === 'drill').forEach((it, n) => drillNumber.set(it.drill, n + 1));
+
+  const totalSteps = flow.length + lesson.quiz.length;
 
   const barFill = el('i', { style: 'width:0%' });
   const top = el('div', { class: 'lesson-top' },
@@ -31,7 +49,7 @@ export function renderLesson(app, lessonId) {
   app.append(top, stage);
 
   let step = 0;
-  showCard(0);
+  showItem(0);
 
   function progress(add = 0) {
     barFill.style.width = Math.min(100, Math.round(((step + add) / totalSteps) * 100)) + '%';
@@ -42,38 +60,43 @@ export function renderLesson(app, lessonId) {
     navigate('');
   }
 
-  // ---- Фаза 1: карточки ----
-  function showCard(i) {
+  // ---- Фазы 1–2: поток «объяснение -> практика» ----
+  function showItem(i) {
+    if (i >= flow.length) { startQuiz(); return; }
     step = i;
     progress();
-    const card = lesson.cards[i];
+    const item = flow[i];
+    item.kind === 'card' ? showCard(i, item) : showDrill(i, item);
+  }
+
+  function showCard(i, { card, cardIndex }) {
+    const isLast = i + 1 >= flow.length;
+    const nextIsDrill = !isLast && flow[i + 1].kind === 'drill';
+    // «Назад» ведёт к предыдущей карточке (упражнения повторно не проходим).
+    let prevCard = -1;
+    for (let j = i - 1; j >= 0; j--) {
+      if (flow[j].kind === 'card') { prevCard = j; break; }
+    }
     stage.replaceChildren(
       el('div', { class: 'card lesson-card' },
-        el('div', { class: 'eyebrow' }, `${mod.title} · карточка ${i + 1} из ${lesson.cards.length}`),
+        el('div', { class: 'eyebrow' }, `${mod.title} · карточка ${cardIndex + 1} из ${lesson.cards.length}`),
         el('h2', {}, card.title),
         el('div', { html: card.html }),
         card.code ? el('pre', { class: 'codeblock' }, card.code) : null,
         el('div', { class: 'lesson-actions' },
-          i > 0 ? el('button', { class: 'btn btn-ghost', onclick: () => showCard(i - 1) }, icon('chevron-left'), 'Назад') : null,
-          el('button', { class: 'btn', onclick: () => (i + 1 < lesson.cards.length ? showCard(i + 1) : afterCards()) },
-            i + 1 < lesson.cards.length ? 'Дальше' : drills.length ? 'К практике!' : 'К квизу!', icon('arrow-right')),
+          prevCard >= 0 ? el('button', { class: 'btn btn-ghost', onclick: () => showItem(prevCard) }, icon('chevron-left'), 'Назад') : null,
+          el('button', { class: 'btn', onclick: () => showItem(i + 1) },
+            isLast ? 'К квизу!' : nextIsDrill ? 'Попробуй сам!' : 'Дальше', icon('arrow-right')),
         ),
       ),
     );
   }
 
-  function afterCards() {
-    drills.length ? showDrill(0) : startQuiz();
-  }
-
-  // ---- Фаза 2: практика — печатаем код руками ----
-  function showDrill(i) {
-    step = lesson.cards.length + i;
-    progress();
+  function showDrill(i, { drill }) {
     stage.replaceChildren();
-    const advance = () => (i + 1 < drills.length ? showDrill(i + 1) : startQuiz());
-    mountCodeExercise(stage, drills[i], {
-      eyebrow: `Практика · упражнение ${i + 1} из ${drills.length}`,
+    const advance = () => showItem(i + 1);
+    mountCodeExercise(stage, drill, {
+      eyebrow: `Практика · упражнение ${drillNumber.get(drill)} из ${drills.length}`,
       xpLabel: '+5 XP',
       onSolved: () => {
         store.addXp(5);
@@ -89,7 +112,7 @@ export function renderLesson(app, lessonId) {
   function startQuiz() {
     runQuiz(stage, lesson.quiz, {
       onProgress(solved) {
-        step = lesson.cards.length + drills.length + solved;
+        step = flow.length + solved;
         progress();
       },
       onFinish({ mistakes }) {

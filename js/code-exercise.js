@@ -6,12 +6,14 @@ import { preloadPython, runPython, outputMatches } from './pycode.js';
 
 const PRAISE = ['Отлично!', 'Работает!', 'Именно так!', 'Чистый код!', 'Так держать!'];
 
-// task: { q, starter, expect, solution, hint, explain, tests? }
+// task: { q, starter, expect, solution, hints|hint, explain, tests? }
 // opts: { eyebrow, xpLabel, savedCode, onSave(code), onSolved({ firstTry }), onSkip }
 export function mountCodeExercise(container, task, opts = {}) {
   const { eyebrow = 'Твой код', xpLabel = null, onSolved, onSkip } = opts;
+  const hints = Array.isArray(task.hints) ? task.hints : task.hint ? [task.hint] : [];
   preloadPython();
   let fails = 0;
+  let hintLevel = 0;
 
   const editor = createEditor(opts.savedCode ?? task.starter ?? '');
   const consoleBox = el('div', { class: 'code-console muted' },
@@ -19,7 +21,11 @@ export function mountCodeExercise(container, task, opts = {}) {
     'Напиши код и нажми «Запустить», чтобы увидеть результат.');
   const runBtn = el('button', { class: 'btn btn-ghost', onclick: () => run(false) }, icon('play'), 'Запустить');
   const checkBtn = el('button', { class: 'btn btn-mint', onclick: () => run(true) }, icon('check'), 'Проверить');
-  const hintBox = el('div', { class: 'code-hint hidden' });
+  const hintBox = el('div', { class: 'code-hints' });
+  const hintBtn = hints.length
+    ? el('button', { class: 'hint-btn', onclick: () => revealHint() },
+        icon('lightbulb'), el('span', {}, `Подсказка · ${hints.length} ${hints.length === 1 ? 'уровень' : 'уровня'}`))
+    : null;
 
   container.append(
     el('div', { class: 'card lesson-card' },
@@ -27,6 +33,7 @@ export function mountCodeExercise(container, task, opts = {}) {
       el('div', { class: 'quiz-q' }, task.q),
       editor.root,
       consoleBox,
+      hintBtn,
       hintBox,
       el('div', { class: 'code-actions' }, runBtn, checkBtn),
     ),
@@ -37,8 +44,34 @@ export function mountCodeExercise(container, task, opts = {}) {
     consoleBox.replaceChildren(el('span', { class: 'con-label' }, 'консоль'), text);
   }
 
+  // Подсказки раскрываются по уровням: направление -> каркас -> почти решение.
+  function revealHint() {
+    if (hintLevel >= hints.length) return;
+    hintLevel += 1;
+    hintBox.append(
+      el('div', { class: 'code-hint' },
+        icon('lightbulb', 'hint-icon'),
+        el('div', {},
+          el('b', { style: 'display:block;font-size:12px;margin-bottom:2px' }, `Подсказка ${hintLevel} из ${hints.length}`),
+          el('span', { style: 'white-space:pre-wrap' }, hints[hintLevel - 1]),
+        ),
+      ),
+    );
+    if (hintBtn) {
+      if (hintLevel >= hints.length) {
+        hintBtn.remove();
+      } else {
+        hintBtn.querySelector('span').textContent = `Ещё подсказка · уровень ${hintLevel + 1}`;
+      }
+    }
+  }
+
   async function run(checking) {
     const code = editor.getValue();
+    if (code.includes('___')) {
+      setConsole('В коде остался пропуск ___ — замени его своим кодом и запусти снова.', 'err');
+      return;
+    }
     opts.onSave?.(code);
     runBtn.disabled = checkBtn.disabled = true;
     setConsole('Выполняю… (первый запуск скачивает Python, до ~15 секунд)', 'muted');
@@ -82,16 +115,14 @@ export function mountCodeExercise(container, task, opts = {}) {
 
   function fail(message) {
     fails += 1;
-    if (task.hint) {
-      hintBox.classList.remove('hidden');
-      hintBox.replaceChildren(icon('lightbulb', 'hint-icon'), el('span', {}, task.hint));
-    }
+    if (hintLevel === 0 && hints.length) revealHint(); // первая неудача — сразу мягкая подсказка
+    const showSolution = fails >= 3 || (fails >= 2 && hintLevel >= hints.length);
     const sheet = el('div', { class: 'feedback bad' },
       el('div', { class: 'feedback-inner' },
         el('div', { class: 'feedback-head' }, icon('circle-x'), 'Пока не так'),
         el('p', { style: 'white-space:pre-wrap' }, message),
         el('div', { class: 'code-actions', style: 'margin-top:0' },
-          fails >= 3
+          showSolution
             ? el('button', {
                 class: 'btn btn-ghost',
                 onclick: () => {
@@ -101,7 +132,7 @@ export function mountCodeExercise(container, task, opts = {}) {
                 },
               }, icon('lightbulb'), 'Показать решение')
             : null,
-          fails >= 3 && onSkip
+          showSolution && onSkip
             ? el('button', { class: 'btn btn-ghost', onclick: () => { sheet.remove(); onSkip(); } }, 'Пропустить')
             : null,
           el('button', { class: 'btn btn-coral', onclick: () => { sheet.remove(); editor.focus(); } }, 'Попробовать ещё'),
