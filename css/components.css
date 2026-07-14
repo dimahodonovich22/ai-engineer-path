@@ -268,6 +268,64 @@ p code, li code {
 .ex-back svg { width: 17px; height: 17px; stroke: currentColor; fill: none; }
 .ex-back:hover { color: var(--ink); }
 
+/* ============ Карточка «Тренировка» ============ */
+.review-card {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  padding: 14px 16px; margin-bottom: 22px;
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--shadow);
+  cursor: pointer; text-align: left; color: var(--ink);
+  transition: transform 0.08s ease;
+}
+.review-card:active { transform: translateY(2px); }
+.review-card.due { border-color: var(--mint); }
+.review-ic {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 46px; height: 46px; border-radius: 14px;
+  background: var(--mint-soft); color: var(--mint-deep);
+}
+.review-ic svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+.review-body { flex: 1; min-width: 0; }
+.review-body b { display: block; font-size: 15px; }
+.review-body small { color: var(--muted); font-size: 13px; }
+.review-count {
+  display: grid; place-items: center; flex-shrink: 0;
+  min-width: 30px; height: 30px; padding: 0 8px; border-radius: 999px;
+  background: var(--mint); color: #fff; font-weight: 800; font-size: 15px;
+}
+.review-card > svg { width: 22px; height: 22px; stroke: var(--muted); fill: none; flex-shrink: 0; }
+
+/* Замок-подсказка перед закрытым модулем */
+.gate-note {
+  display: flex; align-items: center; gap: 8px;
+  margin: 22px 0 2px; padding: 10px 14px; border-radius: var(--r-md);
+  background: var(--surface-2); color: var(--muted);
+  font-size: 13px; font-weight: 600;
+}
+.gate-note svg { width: 16px; height: 16px; stroke: currentColor; fill: none; flex-shrink: 0; }
+
+/* Чек-лист проекта */
+.project-steps { display: flex; flex-direction: column; gap: 4px; }
+.project-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 4px; cursor: pointer; font-size: 15px;
+  border-bottom: 1px solid var(--border);
+}
+.project-step:last-child { border-bottom: none; }
+.project-step input { position: absolute; opacity: 0; width: 0; height: 0; }
+.project-step .step-box {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 8px;
+  border: 2px solid var(--border); background: var(--surface);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.project-step .step-box svg { width: 16px; height: 16px; stroke: #fff; fill: none; opacity: 0; }
+.project-step input:checked + .step-box {
+  background: var(--mint); border-color: var(--mint-deep);
+}
+.project-step input:checked + .step-box svg { opacity: 1; }
+.project-step input:focus-visible + .step-box { outline: 3px solid var(--ring); outline-offset: 2px; }
+
 /* Конфетти */
 .confetti {
   position: fixed; width: 10px; height: 14px; top: -20px; z-index: 70;

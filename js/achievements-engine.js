@@ -18,6 +18,8 @@ function buildContext() {
   const modulesDone = MODULES
     .filter((m) => m.lessons && m.lessons.every((l) => store.isDone(l.id)))
     .map((m) => m.id);
+  const examsPassed = MODULES.filter((m) => m.exam && store.examPassed(m.id)).length;
+  const examsTotal = MODULES.filter((m) => m.exam).length;
   return {
     lessonsDone: store.completedCount(),
     modulesDone,
@@ -25,6 +27,11 @@ function buildContext() {
     perfect: store.perfectCount(),
     practiceDone: countPractice(),
     codeSolved: store.codeSolved,
+    bugsFixed: store.bugsFixed,
+    reviewsDone: store.reviewsDone,
+    examsPassed,
+    examsAll: examsTotal > 0 && examsPassed >= examsTotal,
+    projectsDone: store.projectsDoneCount(),
     xp: store.xp,
   };
 }

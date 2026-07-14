@@ -30,6 +30,21 @@ export function renderProfile(app) {
         statCard(store.daysActive, plural(store.daysActive, 'день с уроками', 'дня с уроками', 'дней с уроками')),
         statCard(store.perfectCount(), 'идеальных квизов'),
         statCard(store.codeSolved, plural(store.codeSolved, 'код-задание решено', 'код-задания решено', 'код-заданий решено')),
+        statCard(store.reviewsDone, plural(store.reviewsDone, 'повторение', 'повторения', 'повторений')),
+      ),
+    ),
+  );
+
+  // Заморозки стрика
+  app.append(
+    el('div', { class: 'card', style: 'display:flex;align-items:center;gap:14px;margin-bottom:18px' },
+      el('div', {
+        style: 'display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--sky-soft);color:var(--sky-deep);flex-shrink:0',
+      }, icon('shield', 'freeze-ic')),
+      el('div', { style: 'flex:1' },
+        el('b', { style: 'display:block' }, `Заморозки стрика: ${store.freezes}`),
+        el('small', { style: 'color:var(--muted);font-size:13px' },
+          'Пропустишь один день — заморозка сохранит цепочку. Новая приходит раз в неделю.'),
       ),
     ),
   );

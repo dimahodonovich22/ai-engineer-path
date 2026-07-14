@@ -88,13 +88,15 @@ export function runQuiz(container, questions, { onProgress, onFinish }) {
   function renderCodeTask(item) {
     const { q } = item;
     mountCodeExercise(container, q, {
-      eyebrow: 'Твой код',
+      eyebrow: q.bug ? 'Найди и исправь ошибку' : 'Твой код',
+      bug: q.bug,
       savedCode: item.savedCode,
       onSave: (code) => { item.savedCode = code; },
       onSolved: ({ firstTry }) => {
         if (!firstTry) firstTryWrong.add(q);
         item.savedCode = undefined;
         store.bumpCodeSolved();
+        if (q.bug) store.bumpBugFixed();
         checkAchievements();
         queue.shift();
         solved += 1;
@@ -141,6 +143,54 @@ function renderShuffledOptions(card, q, options, correctIdx, codeLine) {
   const order = shuffle(options.map((_, i) => i));
   const shuffledOpts = order.map((i) => options[i]);
   return renderOptions(card, q, shuffledOpts, order.indexOf(correctIdx), codeLine);
+}
+
+// Задать ОДИН вопрос (mcq/tf/fill/order) и получить результат.
+// Без повтора при ошибке — один заход. Используется в «Тренировке» и «Экзамене».
+export function askQuestion(container, q, { eyebrow } = {}) {
+  return new Promise((resolve) => {
+    container.replaceChildren();
+    const card = el('div', { class: 'card lesson-card' });
+    if (eyebrow) card.append(el('div', { class: 'eyebrow' }, eyebrow));
+
+    let getResult;
+    if (q.type === 'mcq') getResult = renderShuffledOptions(card, q, q.options, q.correct);
+    else if (q.type === 'tf') getResult = renderOptions(card, q, ['Правда', 'Ложь'], q.correct ? 0 : 1);
+    else if (q.type === 'fill') getResult = renderFill(card, q);
+    else if (q.type === 'order') getResult = renderOrder(card, q);
+
+    const checkBtn = el('button', { class: 'btn btn-block', disabled: true, onclick: check }, 'Проверить');
+    card.append(el('div', { class: 'lesson-actions' }, checkBtn));
+    container.append(card);
+    card.addEventListener('answer-ready', () => { checkBtn.disabled = false; });
+
+    function check() {
+      const { ok, correctText } = getResult();
+      card.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+      checkBtn.closest('.lesson-actions').classList.add('hidden');
+      feedbackSheet(ok, correctText, q.explain, () => resolve(ok));
+    }
+  });
+}
+
+// Нижняя панель с результатом ответа (для askQuestion).
+function feedbackSheet(ok, correctText, explain, onContinue) {
+  const head = ok
+    ? PRAISE[Math.floor(Math.random() * PRAISE.length)]
+    : OOPS[Math.floor(Math.random() * OOPS.length)];
+  const sheet = el('div', { class: `feedback ${ok ? 'good' : 'bad'}` },
+    el('div', { class: 'feedback-inner' },
+      el('div', { class: 'feedback-head' }, icon(ok ? 'circle-check' : 'circle-x'), head),
+      !ok && correctText ? el('p', {}, el('strong', {}, 'Правильный ответ: '), correctText) : null,
+      explain ? el('p', {}, explain) : null,
+      el('button', {
+        class: `btn btn-block ${ok ? 'btn-mint' : 'btn-coral'}`,
+        onclick: () => { sheet.remove(); onContinue(); },
+      }, 'Дальше'),
+    ),
+  );
+  document.body.append(sheet);
+  sheet.querySelector('.btn').focus();
 }
 
 // ---- «Расставь по порядку» ----

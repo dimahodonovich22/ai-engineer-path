@@ -1,9 +1,13 @@
 // Входная точка приложения.
 import { el, icon, loadSprite } from './ui.js';
 import { store } from './store.js';
+import { allLessons } from '../data/curriculum.js';
 import { route, startRouter, currentPath } from './router.js';
 import { renderMap } from './views/map.js';
 import { renderLesson } from './views/lesson.js';
+import { renderReview } from './views/review.js';
+import { renderExam } from './views/exam.js';
+import { renderProject } from './views/project.js';
 import { renderAchievements } from './views/achievements.js';
 import { renderProfile, applyTheme } from './views/profile.js';
 
@@ -27,12 +31,16 @@ function highlightTab() {
   document.querySelectorAll('.tabbar a').forEach((a) => {
     a.classList.toggle('active', a.dataset.tab === tab);
   });
-  // В уроке навигация не нужна — прячем, чтобы ничего не отвлекало.
-  document.getElementById('tabbar').classList.toggle('hidden', path.startsWith('lesson/'));
+  // На экранах-«сессиях» (урок, тренировка, экзамен) навигация мешает — прячем.
+  const focused = ['lesson/', 'review', 'exam/'].some((p) => path.startsWith(p));
+  document.getElementById('tabbar').classList.toggle('hidden', focused);
 }
 
 route('', () => renderMap(app));
 route('lesson/:id', ({ id }) => renderLesson(app, id));
+route('review', () => renderReview(app));
+route('exam/:id', ({ id }) => renderExam(app, id));
+route('project/:id', ({ id }) => renderProject(app, id));
 route('awards', () => renderAchievements(app));
 route('profile', () => renderProfile(app));
 
@@ -42,6 +50,8 @@ addEventListener('progress-changed', renderTopStats);
 addEventListener('hashchange', highlightTab);
 
 loadSprite().then(() => {
+  store.maybeGrantFreeze();
+  store.backfillReviews(allLessons().map((x) => x.lesson));
   startRouter();
   renderTopStats();
   highlightTab();

@@ -79,6 +79,17 @@
   100% { opacity: 0; }
 }
 .node.locked { cursor: not-allowed; opacity: 0.75; }
+
+/* Спец-узлы: мастерская багов, экзамен, проект */
+.node.debug.current { background: var(--coral); box-shadow: inset 0 0 0 3px var(--coral-deep), 0 4px 0 var(--coral-deep); }
+.node.debug.current::before { border-color: var(--coral); }
+.node.exam { border-radius: 20px; }
+.node.exam.current { background: var(--amber); box-shadow: inset 0 0 0 3px var(--amber-deep), 0 4px 0 var(--amber-deep); }
+.node.exam.current::before { border-color: var(--amber); border-radius: 22px; }
+.node.exam.done { background: var(--amber); box-shadow: inset 0 0 0 3px var(--amber-deep), 0 4px 0 var(--amber-deep); }
+.node.project.current { background: var(--sky); box-shadow: inset 0 0 0 3px var(--sky-deep), 0 4px 0 var(--sky-deep); }
+.node.project.current::before { border-color: var(--sky); }
+.node.project.done { background: var(--sky); box-shadow: inset 0 0 0 3px var(--sky-deep), 0 4px 0 var(--sky-deep); }
 .node-label {
   max-width: 170px; font-size: 13px; font-weight: 600; line-height: 1.3;
   color: var(--muted); text-align: left;
@@ -153,6 +164,38 @@
   animation: pop-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
 .finish .finish-icon svg { width: 46px; height: 46px; color: var(--amber-deep); }
+.finish .finish-icon.fail { background: var(--coral-soft); }
+.finish .finish-icon.fail svg { color: var(--coral-deep); }
+
+/* Экзамен — стартовый экран */
+.exam-intro { text-align: center; padding: 26px 18px; }
+.exam-badge {
+  display: grid; place-items: center; margin: 0 auto 14px;
+  width: 76px; height: 76px; border-radius: 24px;
+  background: linear-gradient(135deg, var(--amber), var(--coral));
+}
+.exam-badge svg { width: 38px; height: 38px; stroke: #fff; fill: none; }
+.exam-intro h2 { font-family: var(--font-display); font-size: 22px; margin: 6px 0 8px; }
+.exam-intro p { font-size: 15px; margin-bottom: 14px; }
+.exam-passed-note {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--mint-deep); font-weight: 700; font-size: 13.5px; margin-bottom: 14px;
+}
+.exam-passed-note svg { width: 17px; height: 17px; stroke: currentColor; fill: none; }
+
+/* Проект — шапка */
+.project-hero { text-align: center; margin-bottom: 18px; }
+.project-icon {
+  display: grid; place-items: center; margin: 0 auto 12px;
+  width: 68px; height: 68px; border-radius: 22px;
+  background: linear-gradient(135deg, var(--sky), var(--violet)); color: #fff;
+}
+.project-icon svg { width: 34px; height: 34px; stroke: currentColor; fill: none; }
+.project-hero h2 { font-family: var(--font-display); font-size: 21px; margin: 6px 0 4px; }
+.project-tagline { font-size: 14px; color: var(--muted); }
+
+.caught-up-icon { width: 34px; height: 34px; color: var(--mint-deep); stroke: currentColor; fill: none; }
+.freeze-ic { width: 24px; height: 24px; stroke: currentColor; fill: none; }
 @keyframes pop-in { from { transform: scale(0.3); opacity: 0; } to { transform: none; opacity: 1; } }
 .finish h2 { font-family: var(--font-display); font-size: 24px; margin-bottom: 8px; }
 .finish .sub { color: var(--muted); margin-bottom: 22px; }

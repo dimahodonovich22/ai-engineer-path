@@ -1,5 +1,5 @@
 // Плеер урока: карточки -> квиз -> практика -> экран награды.
-import { el, icon, confetti } from '../ui.js';
+import { el, icon, confetti, toast } from '../ui.js';
 import { store } from '../store.js';
 import { findLesson } from '../../data/curriculum.js';
 import { navigate } from '../router.js';
@@ -159,10 +159,11 @@ export function renderLesson(app, lessonId) {
   function finish(mistakes) {
     const perfect = mistakes === 0;
     const before = store.streak();
-    const { xpGained, firstTime } = store.completeLesson(lesson, perfect);
+    const { xpGained, firstTime, freezeUsed } = store.completeLesson(lesson, perfect);
     const after = store.streak();
     checkAchievements();
     confetti(perfect ? 110 : 60);
+    if (freezeUsed) toast('shield', 'Заморозка спасла твой стрик!');
 
     barFill.style.width = '100%';
     stage.replaceChildren(

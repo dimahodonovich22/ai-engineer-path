@@ -15,9 +15,9 @@ function stripCommentsAndStrings(code) {
 }
 
 // task: { q, starter, expect, solution, hints|hint, explain, tests? }
-// opts: { eyebrow, xpLabel, savedCode, onSave(code), onSolved({ firstTry }), onSkip, onBack }
+// opts: { eyebrow, xpLabel, bug, savedCode, onSave(code), onSolved({ firstTry }), onSkip, onBack }
 export function mountCodeExercise(container, task, opts = {}) {
-  const { eyebrow = 'Твой код', xpLabel = null, onSolved, onSkip, onBack } = opts;
+  const { eyebrow = 'Твой код', xpLabel = null, bug = false, onSolved, onSkip, onBack } = opts;
   const hints = Array.isArray(task.hints) ? task.hints : task.hint ? [task.hint] : [];
   preloadPython();
   let fails = 0;
@@ -26,7 +26,9 @@ export function mountCodeExercise(container, task, opts = {}) {
   const editor = createEditor(opts.savedCode ?? task.starter ?? '');
   const consoleBox = el('div', { class: 'code-console muted' },
     el('span', { class: 'con-label' }, 'консоль'),
-    'Напиши код и нажми «Запустить», чтобы увидеть результат.');
+    bug
+      ? 'Нажми «Запустить» — увидишь, что не так. Прочитай ошибку, почини код и проверь.'
+      : 'Напиши код и нажми «Запустить», чтобы увидеть результат.');
   const runBtn = el('button', { class: 'btn btn-ghost', onclick: () => run(false) }, icon('play'), 'Запустить');
   const checkBtn = el('button', { class: 'btn btn-mint', onclick: () => run(true) }, icon('check'), 'Проверить');
   const hintBox = el('div', { class: 'code-hints' });
