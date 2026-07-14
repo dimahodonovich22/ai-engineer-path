@@ -29,6 +29,7 @@ export function renderProfile(app) {
         statCard(store.streakBest, 'рекорд стрика'),
         statCard(store.daysActive, plural(store.daysActive, 'день с уроками', 'дня с уроками', 'дней с уроками')),
         statCard(store.perfectCount(), 'идеальных квизов'),
+        statCard(store.codeSolved, plural(store.codeSolved, 'код-задание решено', 'код-задания решено', 'код-заданий решено')),
       ),
     ),
   );

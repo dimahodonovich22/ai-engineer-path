@@ -91,6 +91,18 @@ export const ACHIEVEMENTS = [
     check: (c) => c.practiceDone >= 1,
   },
   {
+    id: 'code-1', icon: 'terminal', color: 'mc-violet',
+    title: 'Hello, world!',
+    desc: 'Реши первое код-задание в редакторе',
+    check: (c) => c.codeSolved >= 1,
+  },
+  {
+    id: 'code-10', icon: 'cpu', color: 'mc-violet',
+    title: 'Кодер',
+    desc: 'Реши 10 код-заданий',
+    check: (c) => c.codeSolved >= 10,
+  },
+  {
     id: 'xp-500', icon: 'sparkles', color: 'mc-violet',
     title: '500 XP',
     desc: 'Набери 500 очков опыта',

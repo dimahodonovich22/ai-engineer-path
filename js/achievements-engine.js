@@ -9,7 +9,7 @@ export function checkAchievements() {
   for (const a of ACHIEVEMENTS) {
     if (store.achievements[a.id]) continue;
     if (a.check(ctx) && store.unlockAchievement(a.id)) {
-      toast('trophy', `Достижение: ${a.title}!`);
+      toast('trophy', `Достижение: ${a.title}`);
     }
   }
 }
@@ -24,6 +24,7 @@ function buildContext() {
     streak: store.streak(),
     perfect: store.perfectCount(),
     practiceDone: countPractice(),
+    codeSolved: store.codeSolved,
     xp: store.xp,
   };
 }

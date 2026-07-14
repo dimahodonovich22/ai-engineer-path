@@ -164,6 +164,85 @@ p code, li code {
 }
 .chip svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
 
+/* ============ Редактор кода ============ */
+.code-editor {
+  border-radius: var(--r-md); overflow: hidden;
+  border: 1px solid #322B5E; background: #191631;
+  box-shadow: 0 6px 20px rgba(20, 15, 50, 0.25);
+}
+[data-theme="dark"] .code-editor { background: #100D20; }
+.ed-titlebar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid #322B5E;
+}
+.ed-dots { display: flex; gap: 5px; }
+.ed-dots i { width: 10px; height: 10px; border-radius: 50%; }
+.ed-dots i:nth-child(1) { background: #FF5C7A; }
+.ed-dots i:nth-child(2) { background: #FFAF1F; }
+.ed-dots i:nth-child(3) { background: #1FC77C; }
+.ed-filename {
+  font-family: var(--font-mono); font-size: 12px; color: #8F87C0;
+}
+.ed-body { display: flex; }
+.ed-gutter {
+  flex-shrink: 0; padding: 12px 0; width: 40px;
+  text-align: right; overflow: hidden; user-select: none;
+  border-right: 1px solid #322B5E;
+}
+.ed-gutter span {
+  display: block; padding-right: 10px;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6;
+  color: #575083;
+}
+.ed-scroll { position: relative; flex: 1; min-width: 0; }
+.ed-highlight, .ed-input {
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6;
+  padding: 12px 14px; margin: 0; tab-size: 4;
+  white-space: pre; word-wrap: normal;
+}
+.ed-highlight {
+  position: absolute; inset: 0; overflow: hidden;
+  color: #EDEAFF; pointer-events: none;
+}
+.ed-input {
+  position: relative; display: block; width: 100%; min-height: 150px;
+  background: transparent; border: none; resize: vertical;
+  color: transparent; caret-color: #FFAF1F;
+  overflow: auto; outline: none;
+}
+.ed-input::selection { background: rgba(108, 76, 241, 0.45); }
+.tok-kw { color: #C792EA; font-weight: 600; }
+.tok-str { color: #A5E28C; }
+.tok-com { color: #6B6396; font-style: italic; }
+.tok-num { color: #F7A76C; }
+.tok-fn { color: #74C5FF; }
+
+/* Консоль вывода */
+.code-console {
+  margin-top: 10px; border-radius: var(--r-md);
+  background: #0D0B1A; border: 1px solid #322B5E;
+  padding: 10px 14px; min-height: 44px;
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.6;
+  color: #C9C3EE; white-space: pre-wrap; word-break: break-word;
+}
+.code-console .con-label {
+  display: block; font-size: 10.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #575083; margin-bottom: 4px;
+  font-family: var(--font-body); font-weight: 700;
+}
+.code-console.err { color: #FF8FA5; border-color: #713047; }
+.code-console.muted { color: #6B6396; }
+.code-actions { display: flex; gap: 10px; margin-top: 14px; }
+.code-actions .btn { flex: 1; }
+.code-hint {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 10px; padding: 10px 14px; border-radius: var(--r-sm);
+  background: var(--amber-soft); color: var(--ink);
+  font-size: 14px; border: 1.5px dashed var(--amber);
+}
+.code-hint .hint-icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; color: var(--amber-deep); }
+
 /* Конфетти */
 .confetti {
   position: fixed; width: 10px; height: 14px; top: -20px; z-index: 70;

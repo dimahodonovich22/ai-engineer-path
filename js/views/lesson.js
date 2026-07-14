@@ -5,11 +5,15 @@ import { findLesson } from '../../data/curriculum.js';
 import { navigate } from '../router.js';
 import { runQuiz } from '../quiz.js';
 import { checkAchievements } from '../achievements-engine.js';
+import { preloadPython } from '../pycode.js';
 
 export function renderLesson(app, lessonId) {
   const found = findLesson(lessonId);
   if (!found) { navigate(''); return; }
   const { module: mod, lesson } = found;
+
+  // Если в уроке есть код-задание — начинаем качать Python, пока читаются карточки.
+  if (lesson.quiz.some((q) => q.type === 'code')) preloadPython();
 
   app.replaceChildren();
   const totalSteps = lesson.cards.length + lesson.quiz.length;

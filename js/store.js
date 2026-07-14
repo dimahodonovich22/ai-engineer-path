@@ -8,6 +8,7 @@ const DEFAULT = {
   streak: { count: 0, last: null, best: 0 },
   days: [],        // даты активности 'YYYY-MM-DD'
   achievements: {},// id -> дата получения
+  codeSolved: 0,   // решено код-заданий во встроенном редакторе
   theme: 'auto',
 };
 
@@ -85,6 +86,13 @@ export const store = {
 
     save();
     return { xpGained, streakGrew, firstTime };
+  },
+
+  get codeSolved() { return state.codeSolved; },
+
+  bumpCodeSolved() {
+    state.codeSolved += 1;
+    save();
   },
 
   markPractice(lessonId) {
