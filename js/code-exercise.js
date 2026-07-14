@@ -6,6 +6,14 @@ import { preloadPython, runPython, outputMatches } from './pycode.js';
 
 const PRAISE = ['Отлично!', 'Работает!', 'Именно так!', 'Чистый код!', 'Так держать!'];
 
+// Убирает комментарии и строковые литералы — чтобы искать пропуск ___ только в реальном коде.
+function stripCommentsAndStrings(code) {
+  return code.replace(
+    /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|#[^\n]*)/g,
+    ' ',
+  );
+}
+
 // task: { q, starter, expect, solution, hints|hint, explain, tests? }
 // opts: { eyebrow, xpLabel, savedCode, onSave(code), onSolved({ firstTry }), onSkip }
 export function mountCodeExercise(container, task, opts = {}) {
@@ -68,7 +76,9 @@ export function mountCodeExercise(container, task, opts = {}) {
 
   async function run(checking) {
     const code = editor.getValue();
-    if (code.includes('___')) {
+    // Проверяем пропуск только в «настоящем» коде: комментарии и строки
+    // (например, инструкция «замени ___ на плюс») не должны считаться пропуском.
+    if (stripCommentsAndStrings(code).includes('___')) {
       setConsole('В коде остался пропуск ___ — замени его своим кодом и запусти снова.', 'err');
       return;
     }
