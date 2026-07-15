@@ -3,10 +3,11 @@ import { el, icon, confetti, toast } from '../ui.js';
 import { store } from '../store.js';
 import { findLesson } from '../../data/curriculum.js';
 import { navigate } from '../router.js';
-import { runQuiz } from '../quiz.js';
+import { runQuiz, askQuestion } from '../quiz.js';
 import { checkAchievements } from '../achievements-engine.js';
 import { preloadPython } from '../pycode.js';
 import { mountCodeExercise } from '../code-exercise.js';
+import { pickRecall } from '../practice-picker.js';
 
 export function renderLesson(app, lessonId) {
   const found = findLesson(lessonId);
@@ -14,6 +15,16 @@ export function renderLesson(app, lessonId) {
   const { module: mod, lesson } = found;
 
   const drills = lesson.drills || [];
+
+  // Повторение внутри урока: разминка в начале + 1 «старый» вопрос в квизе.
+  // Дебаг-уроки не трогаем (там свой формат).
+  const isDebug = lesson.kind === 'debug';
+  const warmups = isDebug ? [] : pickRecall(lesson.id, 2, { prefer: 'recent' });
+  const warmupKeys = new Set(warmups.map((w) => w.key));
+  const interleaved = isDebug ? [] : pickRecall(lesson.id, 1, { prefer: 'due', exclude: warmupKeys });
+  const reviewByQ = new Map(); // q -> reviewKey (подмешанные вопросы для оценки в Leitner)
+  interleaved.forEach((r) => reviewByQ.set(r.q, r.key));
+  const quizList = [...lesson.quiz, ...interleaved.map((r) => r.q)];
 
   // Если в уроке есть код — начинаем качать Python, пока читаются карточки.
   if (drills.length || lesson.quiz.some((q) => q.type === 'code')) preloadPython();
@@ -39,7 +50,7 @@ export function renderLesson(app, lessonId) {
   const drillCode = {};          // набранный код по индексу упражнения — не теряется при «Назад»
   const solvedDrills = new Set(); // упражнения, за которые XP уже начислен
 
-  const totalSteps = flow.length + lesson.quiz.length;
+  const totalSteps = warmups.length + flow.length + quizList.length;
 
   const barFill = el('i', { style: 'width:0%' });
   const top = el('div', { class: 'lesson-top' },
@@ -51,7 +62,7 @@ export function renderLesson(app, lessonId) {
   app.append(top, stage);
 
   let step = 0;
-  showItem(0);
+  startWarmup();
 
   function progress(add = 0) {
     barFill.style.width = Math.min(100, Math.round(((step + add) / totalSteps) * 100)) + '%';
@@ -62,10 +73,30 @@ export function renderLesson(app, lessonId) {
     navigate('');
   }
 
+  // ---- Фаза 0: разминка (вспомнить недавнее перед новым) ----
+  function startWarmup() {
+    if (!warmups.length) { showItem(0); return; }
+    runWarmup(0);
+  }
+
+  async function runWarmup(i) {
+    if (i >= warmups.length) { showItem(0); return; }
+    step = i;
+    progress();
+    const { key, q, lessonTitle } = warmups[i];
+    const ok = await askQuestion(stage, q, {
+      eyebrow: i === 0 ? 'Разминка · вспомни прошлое' : `Разминка · ${lessonTitle}`,
+    });
+    store.gradeReview(key, ok);
+    if (ok) store.addXp(2);
+    checkAchievements();
+    runWarmup(i + 1);
+  }
+
   // ---- Фазы 1–2: поток «объяснение -> практика» ----
   function showItem(i) {
     if (i >= flow.length) { startQuiz(); return; }
-    step = i;
+    step = warmups.length + i;
     progress();
     const item = flow[i];
     item.kind === 'card' ? showCard(i, item) : showDrill(i, item);
@@ -96,7 +127,7 @@ export function renderLesson(app, lessonId) {
 
   function showDrill(i, { drill, drillIndex }) {
     stage.replaceChildren();
-    step = i;
+    step = warmups.length + i;
     progress();
     const advance = () => showItem(i + 1);
     const alreadySolved = solvedDrills.has(drillIndex);
@@ -119,12 +150,17 @@ export function renderLesson(app, lessonId) {
     });
   }
 
-  // ---- Фаза 3: квиз ----
+  // ---- Фаза 3: квиз (со «старым» вопросом-подмешкой) ----
   function startQuiz() {
-    runQuiz(stage, lesson.quiz, {
+    runQuiz(stage, quizList, {
       onProgress(solved) {
-        step = flow.length + solved;
+        step = warmups.length + flow.length + solved;
         progress();
+      },
+      isReview: (q) => reviewByQ.has(q),
+      onFirstAnswer: (q, correct) => {
+        const key = reviewByQ.get(q);
+        if (key) store.gradeReview(key, correct);
       },
       onFinish({ mistakes }) {
         lesson.practice ? showPractice(mistakes) : finish(mistakes);

@@ -7,7 +7,9 @@ import { checkAchievements } from './achievements-engine.js';
 const PRAISE = ['Отлично!', 'Верно!', 'Именно так!', 'Красиво!', 'Так держать!'];
 const OOPS = ['Не совсем', 'Почти!', 'Пока мимо'];
 
-export function runQuiz(container, questions, { onProgress, onFinish }) {
+// onFirstAnswer(q, correct) — вызывается один раз на первую попытку каждого вопроса.
+// isReview(q) — если вопрос «подмешан» из старой темы, он не портит «идеальное» прохождение.
+export function runQuiz(container, questions, { onProgress, onFinish, onFirstAnswer, isReview }) {
   const queue = questions.map((q) => ({ q, wasWrong: false }));
   const total = questions.length;
   let solved = 0;
@@ -37,6 +39,8 @@ export function runQuiz(container, questions, { onProgress, onFinish }) {
 
     if (item.wasWrong) {
       card.append(el('div', { class: 'eyebrow' }, 'Повторим ещё раз'));
+    } else if (isReview?.(q)) {
+      card.append(el('div', { class: 'eyebrow review-tag' }, icon('repeat'), 'Из прошлой темы'));
     }
 
     let getResult; // () => { ok, correctText }
@@ -55,7 +59,10 @@ export function runQuiz(container, questions, { onProgress, onFinish }) {
       const { ok, correctText } = getResult();
       card.querySelectorAll('button').forEach((b) => { b.disabled = true; });
       checkBtn.closest('.lesson-actions').classList.add('hidden');
-      if (!ok && !item.wasWrong) firstTryWrong.add(q);
+      if (!item.wasWrong) {
+        onFirstAnswer?.(q, ok);
+        if (!ok && !isReview?.(q)) firstTryWrong.add(q);
+      }
       showFeedback(ok, correctText, q.explain, () => {
         queue.shift();
         if (ok) solved += 1;

@@ -57,6 +57,11 @@ p code, li code {
 [data-theme="dark"] p code, [data-theme="dark"] li code { color: #B3A3FF; }
 
 /* ============ Квиз ============ */
+.eyebrow.review-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--mint-deep); margin-bottom: 8px;
+}
+.eyebrow.review-tag svg { width: 15px; height: 15px; stroke: currentColor; fill: none; }
 .quiz-q { font-size: 19px; font-weight: 700; margin-bottom: 16px; }
 .quiz-options { display: flex; flex-direction: column; gap: 10px; }
 .quiz-opt {
